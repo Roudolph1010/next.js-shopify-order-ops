@@ -1,13 +1,144 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../app/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  role        Role     @default(STAFF)
+  displayName String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assignments  Assignment[]
+  assignedBy   Assignment[] @relation("AssignedBy")
+  activityLogs ActivityLog[]
+  notes        Note[]
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+model Order {
+  id                  String         @id @default(cuid())
+  source              String         @default("shopify")
+  externalId          String         @unique
+  externalOrderNumber String
+  customerName        String?
+  customerEmail       String?
+  shippingMethod      String?
+  shippingAddress     String?
+  fulfillmentNotes    String?
+  deliveryNotes       String?
+  tags                String[]
+  priority            Priority       @default(NORMAL)
+  internalStatus      InternalStatus @default(UNASSIGNED)
+  externalStatus      String?
+  shopifyCreatedAt    DateTime?
+  shopifyUpdatedAt    DateTime?
+  rawPayload          Json?
+  lastSyncedAt        DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  items        OrderItem[]
+  assignment   Assignment?
+  activityLogs ActivityLog[]
+  notes        Note[]
+}
+
+enum InternalStatus {
+  UNASSIGNED
+  ASSIGNED
+  IN_PROGRESS
+  PACKED
+  COMPLETED
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model OrderItem {
+  id           String  @id @default(cuid())
+  orderId      String
+  externalId   String?
+  sku          String?
+  title        String
+  variantTitle String?
+  quantity     Int
+  price        String?
+  imageUrl     String?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model Assignment {
+  id           String    @id @default(cuid())
+  orderId      String    @unique
+  userId       String
+  assignedById String?
+  assignedAt   DateTime  @default(now())
+  unassignedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  order      Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user       User  @relation(fields: [userId], references: [id])
+  assignedBy User? @relation("AssignedBy", fields: [assignedById], references: [id])
+
+  @@index([userId])
+}
+
+model ActivityLog {
+  id        String         @id @default(cuid())
+  orderId   String?
+  userId    String?
+  action    ActivityAction
+  metadata  Json           @default("{}")
+  createdAt DateTime       @default(now())
+
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+enum ActivityAction {
+  ORDER_SYNCED
+  ORDER_ASSIGNED
+  ORDER_UNASSIGNED
+  ORDER_REASSIGNED
+  STATUS_UPDATED
+  NOTE_ADDED
+  NOTE_DELETED
+  WEBHOOK_RECEIVED
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  orderId   String
+  userId    String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@index([orderId])
 }
