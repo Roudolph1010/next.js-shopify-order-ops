@@ -2,6 +2,18 @@
 
 A lightweight internal order assignment dashboard. Connects to a Shopify store, imports orders, and lets an admin assign them to staff for fulfillment.
 
+![Admin dashboard and order detail](public/1.png)
+![Order detail with status update and activity log](public/2.png)
+
+## Demo credentials
+
+| Role  | Username | Password |
+|-------|----------|----------|
+| Admin | `admin`  | `admin`  |
+| Staff | `staff`  | `staff`  |
+
+> Change these in your `.env` before deploying.
+
 ## What it does
 
 - Syncs orders from Shopify via the GraphQL Admin API
