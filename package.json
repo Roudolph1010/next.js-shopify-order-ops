@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed:shopify": "tsx --env-file=.env scripts/seed-shopify-orders.ts"
+    "seed:shopify": "tsx --env-file=.env scripts/seed-shopify-orders.ts",
+    "seed:products": "tsx --env-file=.env scripts/seed-shopify-products.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
