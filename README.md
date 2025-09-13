@@ -14,6 +14,19 @@ A lightweight internal order assignment dashboard. Connects to a Shopify store, 
 
 > Change these in your `.env` before deploying.
 
+## Test Shopify store
+
+| | |
+|---|---|
+| **Store URL** | https://expert-store-123.myshopify.com |
+| **Store password** | `Test1234` |
+| **Payment method** | Bogus Gateway (test) |
+
+To place a test order, use these card details at checkout:
+- Card number: `1`
+- Expiry: any future date (e.g. `12/26`)
+- CVV: any 3 digits (e.g. `123`)
+
 ## What it does
 
 - Syncs orders from Shopify via the GraphQL Admin API
